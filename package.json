@@ -1,8 +1,8 @@
 {
-  "name": "daily-credit",
+  "name": "sparfuchs",
   "version": "1.0.0",
   "private": true,
-  "description": "Daily Credit – Tagesbudget-App (Capacitor)",
+  "description": "Sparfuchs – Tagesbudget-App (Capacitor)",
   "scripts": {
     "sync": "cap sync",
     "android": "cap open android",
@@ -11,9 +11,11 @@
   "dependencies": {
     "@capacitor/android": "^8.6.2",
     "@capacitor/core": "^8.6.2",
-    "@capacitor/ios": "^8.6.2"
+    "@capacitor/ios": "^8.6.2",
+    "@capacitor/splash-screen": "^8.0.2"
   },
   "devDependencies": {
+    "@capacitor/assets": "^4.0.0",
     "@capacitor/cli": "^8.6.2"
   }
 }

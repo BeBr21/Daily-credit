@@ -1,7 +1,7 @@
 <?xml version='1.0' encoding='utf-8'?>
 <resources>
-    <string name="app_name">Daily Credit</string>
-    <string name="title_activity_main">Daily Credit</string>
-    <string name="package_name">de.dailycredit.app</string>
-    <string name="custom_url_scheme">de.dailycredit.app</string>
+    <string name="app_name">Sparfuchs</string>
+    <string name="title_activity_main">Sparfuchs</string>
+    <string name="package_name">io.github.bebr21.sparfuchs</string>
+    <string name="custom_url_scheme">io.github.bebr21.sparfuchs</string>
 </resources>

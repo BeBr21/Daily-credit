@@ -1,9 +1,17 @@
 {
-  "appId": "de.dailycredit.app",
-  "appName": "Daily Credit",
+  "appId": "io.github.bebr21.sparfuchs",
+  "appName": "Sparfuchs",
   "webDir": "www",
   "backgroundColor": "#F5F5F7",
   "ios": {
     "contentInset": "never"
+  },
+  "plugins": {
+    "SplashScreen": {
+      "launchShowDuration": 800,
+      "launchAutoHide": true,
+      "backgroundColor": "#F5F5F7",
+      "showSpinner": false
+    }
   }
 }
