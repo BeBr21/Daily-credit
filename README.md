@@ -1,4 +1,4 @@
-# Daily Credit
+# Sparfuchs
 
 iOS- und Android-App mit [Capacitor](https://capacitorjs.com). Die Web-App liegt in `www/index.html`.
 

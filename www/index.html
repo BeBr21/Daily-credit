@@ -1,4 +1,4 @@
-<!doctype html><html><head><meta charset=utf-8><title>Daily Credit</title><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<!doctype html><html><head><meta charset=utf-8><title>Sparfuchs</title><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
 <style>
 :root{color-scheme:light;--bg:#F5F5F7;--ink:#1D1D1F;--muted:#6E6E73;--acc:#8D99AE;--accink:#1D1D1F;--ok:#1f9d55;--sd:rgba(170,170,170,.5);--sl:#fff}
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]){color-scheme:dark;--bg:#1D1D1F;--ink:#F5F5F7;--muted:#AAAAAA;--acc:#8D99AE;--accink:#1D1D1F;--ok:#34c47a;--sd:#111113;--sl:#2c2c31}}
@@ -81,7 +81,7 @@ nav button.on{background:var(--acc);color:var(--accink);box-shadow:0 6px 14px rg
 @media (prefers-reduced-motion:reduce){#wrap,#track,.hbar i,.bar i{transition:none!important}}
 </style>
 <div class="app">
-  <header><b>Daily Credit</b><span class="day" id="day"></span></header>
+  <header><b>Sparfuchs</b><span class="day" id="day"></span></header>
   <nav>
     <button onclick="setTab(0)">Heute</button>
     <button onclick="setTab(1)">Mein Monat</button>
@@ -94,7 +94,7 @@ nav button.on{background:var(--acc);color:var(--accink);box-shadow:0 6px 14px rg
   </div></div>
 </div>
 <div class="modal" id="modal" hidden><div class="sheet" id="sheet" role="dialog" aria-modal="true" aria-label="Hinweis"></div></div>
-<button id="push" hidden onclick="openPush()"><small>DAILY CREDIT · 00:01</small><span id="pushtxt"></span></button>
+<button id="push" hidden onclick="openPush()"><small>SPARFUCHS · 00:01</small><span id="pushtxt"></span></button>
 <div class="toast" id="toast" hidden></div>
 <script>
 const $=s=>document.querySelector(s);
@@ -222,7 +222,7 @@ setInterval(tick,1000);
 function medal(m){modal(`<div style="text-align:center">${mi(MED.indexOf(m),110)}</div><h3 style="justify-content:center">Neue Medaille: ${m[1]}</h3><p class="muted">${m[0]} Tage in Folge ist etwas übrig geblieben. Weiter so!</p><button class="btn wide" onclick="closeM()">Super</button>`)}
 function demo(){S.streak=9;S.best=Math.max(S.best,9);render();toast('Streak steht auf 9. Simuliere Mitternacht, um die nächste Medaille zu bekommen.')}
 function pay(){
-  modal(`<h3>${S.saved>0?'Du hast '+eur(S.saved)+' gespart':'Daily Credit Premium'}</h3>
+  modal(`<h3>${S.saved>0?'Du hast '+eur(S.saved)+' gespart':'Sparfuchs Premium'}</h3>
     <p class="muted">Mehrere Sparziele, Statistik nach Kategorien und unregelmäßiges Einkommen.</p>
     <div class="plans">
       <button class="plan ${S.plan==='y'?'sel':''}" onclick="pick('y')"><b>Jahr</b><span>14,99 €</span><small>etwa 1,25 € pro Monat</small></button>
