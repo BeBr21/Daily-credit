@@ -1,4 +1,4 @@
-package io.github.bebr21.sparfuchs;
+package de.dailycredit.app;
 
 import com.getcapacitor.BridgeActivity;
 
