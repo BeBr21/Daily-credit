@@ -83,7 +83,7 @@ nav button.on{background:var(--acc);color:var(--accink);box-shadow:0 6px 14px rg
 <div class="app">
   <header><b>Sparfuchs</b><span class="day" id="day"></span></header>
   <nav>
-    <button onclick="setTab(0)">Heute</button>
+    <button onclick="setTab(0)">Woche</button>
     <button onclick="setTab(1)">Mein Monat</button>
     <button onclick="setTab(2)">Sparen</button>
   </nav>
@@ -94,7 +94,7 @@ nav button.on{background:var(--acc);color:var(--accink);box-shadow:0 6px 14px rg
   </div></div>
 </div>
 <div class="modal" id="modal" hidden><div class="sheet" id="sheet" role="dialog" aria-modal="true" aria-label="Hinweis"></div></div>
-<button id="push" hidden onclick="openPush()"><small>SPARFUCHS · 00:01</small><span id="pushtxt"></span></button>
+<button id="push" hidden onclick="openPush()"><small>SPARFUCHS · MO 00:01</small><span id="pushtxt"></span></button>
 <div class="toast" id="toast" hidden></div>
 <script>
 const $=s=>document.querySelector(s);
@@ -112,25 +112,33 @@ const MI=[
 const mi=(i,s=28)=>`<svg class="mi" viewBox="-62 -68 124 128" width="${s}" height="${s}" aria-hidden="true">${MI[i]}</svg>`;
 const ICP={flame:'M22 4C28 14 34 18 32 28C31 36 24 40 20 40C14 40 10 35 11 29C12 24 16 22 16 16C19 18 20 20 20 22C23 18 24 10 22 4Z',lock:'M8 20H36V38H8ZM13 20V14A9 9 0 0 1 31 14V20',plus:'M22 8V36M8 22H36',chart:'M8 38V26M18 38V12M28 38V22M40 38H6',warn:'M22 6L40 38H4ZM22 18V27M22 32V32.5',arrow:'M6 22H36M26 12L36 22L26 32',x:'M10 10L34 34M34 10L10 34'};
 const ic=(n,s=18)=>`<svg class="ic" viewBox="0 0 44 44" width="${s}" height="${s}" aria-hidden="true"><path d="${ICP[n]}"/></svg>`;
-const S={income:900,fixed:450,save:100,spent:0,carry:0,saved:0,day:1,paySeen:false,plan:'y',log:[],edit:false,streak:0,best:0,min:1,items:[{n:'Cola Zero',p:1},{n:'Kaffee',p:2.8},{n:'Mensa',p:5.5}]};
-const base=()=>Math.max(0,(S.income-S.fixed-S.save)/30);
-const budget=()=>base()+S.carry;
+const S={income:900,fixed:450,save:100,spent:0,carry:0,saved:0,week:1,paySeen:false,plan:'y',log:[],edit:false,streak:0,best:0,min:1,items:[{n:'Cola Zero',p:1},{n:'Kaffee',p:2.8},{n:'Mensa',p:5.5}]};
+/* Medaillen-Schwellen in Wochen: der Reihe nach, die letzte immer bei Woche 52 */
+(()=>{const W=[1,2,4,8,12,16,20,26,52];MED.forEach((m,i)=>m[0]=i===MED.length-1?52:W[Math.min(i,W.length-2)])})();
+const wk=n=>n===1?'1 Woche':n+' Wochen';
+const mDays=()=>{const n=new Date();return new Date(n.getFullYear(),n.getMonth()+1,0).getDate()};
+const base=()=>Math.max(0,(S.income-S.fixed-S.save)/mDays());
+const wbase=()=>base()*7;
+const budget=()=>wbase()+S.carry;
 const left=()=>(Math.round((budget()-S.spent)*100)/100)||0;
+const daysLeft=()=>{const d=new Date().getDay();return d===0?1:8-d};
+const perDay=()=>Math.max(0,Math.floor(left()/daysLeft()*100)/100);
 
 function streakCard(){
   const nx=MED.find(x=>x[0]>S.streak),pct=nx?Math.min(100,S.streak/nx[0]*100):100;
-  const t=S.streak>=2?`${ic('flame',16)} ${S.streak} Tage in Folge`:S.streak===1?'Tag 1 – bleib dran':'Noch keine Streak';
-  return `<section class="card"><h3><span>${t}</span><span class="muted">Rekord ${S.best}</span></h3>
+  const t=S.streak>=2?`${ic('flame',16)} ${S.streak} Wochen in Folge`:S.streak===1?'Woche 1 – bleib dran':'Noch keine Streak';
+  return `<section class="card"><h3><span>${t}</span><span class="muted">Rekord ${wk(S.best)}</span></h3>
     <div class="bar"><i style="width:${pct}%"></i></div>
-    <div class="meta"><span class="muted">${nx?`Noch ${nx[0]-S.streak} Tage bis ${mi(MED.indexOf(nx),20)} ${nx[1]}`:'Alle Medaillen geschafft!'}</span><button class="link" style="margin:0" onclick="setTab(2)">Medaillen ›</button></div></section>`;
+    <div class="meta"><span class="muted">${nx?`Noch ${wk(nx[0]-S.streak)} bis ${mi(MED.indexOf(nx),20)} ${nx[1]}`:'Alle Medaillen geschafft!'}</span><button class="link" style="margin:0" onclick="setTab(2)">Medaillen ›</button></div></section>`;
 }
 function heute(){
   const l=left(),b=Math.max(budget(),.01),p=Math.min(1,Math.max(0,l/b)),low=l<0||p<.3;
-  return `<section class="hero"><small>Heute noch übrig</small>
+  return `<section class="hero"><small>Diese Woche noch übrig</small>
     <div class="big">${eur(l)}</div>
+    <div style="margin:-10px 0 14px;font-weight:600;opacity:.9">Das sind noch ${eur(perDay())} pro Tag</div>
     <div class="hbar ${low?'low':''}"><i style="width:${p*100}%"></i></div>
-    <div class="pills"><span class="pill"><i class="dot a"></i>Ausgegeben ${eur(S.spent)}</span><span class="pill"><i class="dot b"></i>Budget ${eur(budget())}</span></div></section>
-  ${S.pending>0?`<section class="card"><h3>Rest von gestern</h3><div class="muted">${eur(S.pending)} warten auf deine Entscheidung.</div><button class="btn wide" onclick="ask()">Jetzt entscheiden</button></section>`:''}
+    <div class="pills"><span class="pill"><i class="dot a"></i>Ausgegeben ${eur(S.spent)}</span><span class="pill"><i class="dot b"></i>Wochenbudget ${eur(budget())}</span></div></section>
+  ${S.pending>0?`<section class="card"><h3>Rest der letzten Woche</h3><div class="muted">${eur(S.pending)} warten auf deine Entscheidung.</div><button class="btn wide" onclick="ask()">Jetzt entscheiden</button></section>`:''}
   ${warn('margin-bottom:24px')}
   ${streakCard()}
   <section class="card"><h3>Ausgabe eintragen</h3>
@@ -140,16 +148,16 @@ function heute(){
     <div class="muted" style="margin-top:8px">Menge × Preis pro Stück. Ein Tipp auf eine gespeicherte Ausgabe nutzt die Menge oben.</div>
     <div class="meta" style="margin-top:14px"><span class="muted">Meine Ausgaben</span><button class="link" style="margin:0" onclick="S.edit=!S.edit;render()">${S.edit?'Fertig':'Bearbeiten'}</button></div>
     <div class="chips">${S.items.length?S.items.map((x,i)=>`<button class="chip" onclick="${S.edit?`del(${i})`:`use(${i})`}">${x.n} ${eur(x.p)}${S.edit?' '+ic('x',12):''}</button>`).join(''):'<span class="muted">Noch nichts gespeichert. Trage oben etwas mit Namen ein.</span>'}</div></section>
-  <section class="card"><h3>Heute eingetragen</h3>${S.log.length?S.log.map((x,i)=>`<div class="log"><span>${x.q>1?x.q+'× ':''}${x.n}</span><span>${eur(x.p*x.q)} <button class="chip" style="padding:4px 10px" onclick="undo(${i})" aria-label="Entfernen">${ic('x',12)}</button></span></div>`).join(''):'<span class="muted">Noch keine Ausgabe heute.</span>'}</section>
-  <section class="card" style="text-align:center"><span class="muted">Neuer Tag in</span><div class="cdv" id="cd">${cdText()}</div></section>`;
+  <section class="card"><h3>Diese Woche eingetragen</h3>${S.log.length?S.log.map((x,i)=>`<div class="log"><span>${x.q>1?x.q+'× ':''}${x.n}</span><span>${eur(x.p*x.q)} <button class="chip" style="padding:4px 10px" onclick="undo(${i})" aria-label="Entfernen">${ic('x',12)}</button></span></div>`).join(''):'<span class="muted">Noch keine Ausgabe diese Woche.</span>'}</section>
+  <section class="card" style="text-align:center"><span class="muted">Neue Woche am Montag</span><div class="cdv" id="cd" style="font-size:clamp(1.3rem,7vw,2rem)">${cdText()}</div></section>`;
 }
 function setup(){
   const f=(k,t)=>`<label>${t}<input type="number" inputmode="decimal" value="${S[k]}" oninput="setv('${k}',this.value)"></label>`;
   return `<section class="card"><h3>Mein Monat</h3>
-    ${f('income','Einkommen pro Monat (€)')}${f('fixed','Fixkosten: Miete, Handy, Abos (€)')}${f('save','Sparziel pro Monat (€)')}${f('min','Streak zählt ab einem Rest von (€)')}
-    <div class="res">Dein Tagesbudget: <b id="res"></b><br><small id="wk"></small></div><div id="wb" style="margin-top:14px"></div></section>
+    ${f('income','Einkommen pro Monat (€)')}${f('fixed','Fixkosten: Miete, Handy, Abos (€)')}${f('save','Sparziel pro Monat (€)')}${f('min','Warnen, wenn pro Tag weniger übrig ist als (€)')}
+    <div class="res">Dein Wochenbudget: <b id="res"></b><br><small id="wk"></small></div><div id="wb" style="margin-top:14px"></div></section>
   <button class="lock" onclick="pay()"><span>Schwankt dein Einkommen? Unregelmäßiges Einkommen gibt es mit Premium.</span>${ic('lock')}</button>
-  <div class="chips" style="margin-top:0"><button class="chip" onclick="demo()">Demo: Streak auf Tag 9 setzen</button><button class="chip" onclick="rollover()">Demo: Mitternacht simulieren</button></div>`;
+  <div class="chips" style="margin-top:0"><button class="chip" onclick="demo()">Demo: Streak auf Woche 7 setzen</button><button class="chip" onclick="rollover()">Demo: Wochenwechsel simulieren</button></div>`;
 }
 function sparen(){
   const goal=200,p=Math.min(1,S.saved/goal),got=MED.filter(m=>S.best>=m[0]).length;
@@ -157,18 +165,23 @@ function sparen(){
   <section class="card goal"><h3>Notgroschen</h3><div class="bar"><i style="width:${p*100}%"></i></div>
     <div class="meta"><span>${eur(S.saved)}</span><span class="muted">Ziel: ${eur(goal)}</span></div></section>
   <section class="card"><h3><span>Medaillen</span><span class="muted">${got} von ${MED.length}</span></h3>
-    <div class="mgrid">${MED.map(m=>{const on=S.best>=m[0];return `<div class="m ${on?'on':''}"><span class="e">${mi(MED.indexOf(m),46)}</span><b>${m[1]}</b><small>Tag ${m[0]}</small></div>`}).join('')}</div>
-    <div class="muted" style="margin-top:12px">Jede Marke zählt Tage in Folge, an denen etwas übrig bleibt.</div></section>
+    <div class="mgrid">${MED.map(m=>{const on=S.best>=m[0];return `<div class="m ${on?'on':''}"><span class="e">${mi(MED.indexOf(m),46)}</span><b>${m[1]}</b><small>${on?'ab Woche '+m[0]:'noch '+wk(m[0]-S.streak)}</small></div>`}).join('')}</div>
+    <div class="muted" style="margin-top:12px">Jede Marke zählt Wochen in Folge, in denen du im Budget bleibst.</div></section>
   <button class="lock" onclick="pay()"><span>${ic('plus')} Weitere Sparziele</span><span>${ic('lock')} Premium</span></button>
   <button class="lock" onclick="pay()"><span>${ic('chart')} Statistik nach Kategorien</span><span>${ic('lock')} Premium</span></button>`;
 }
 function render(all){
-  $('#day').textContent='Tag '+S.day;
+  $('#day').textContent='Woche '+S.week;
   [heute,setup,sparen].forEach((f,i)=>{if(all||i===idx)$('#p'+i).innerHTML=f()});
   calc();navUpd();
 }
-function calc(){save();$('#res').textContent=eur(base());$('#wk').textContent='Pro Woche: '+eur(base()*7);$('#wb').innerHTML=warn()}
-function warn(st=''){return S.fixed+S.save>S.income?`<div class="warnbox" role="alert" style="${st}">${ic('warn',18)} Fixkosten und Sparziel (${eur(S.fixed+S.save)}) liegen über deinem Einkommen. Dein Tagesbudget ist 0 €.</div>`:''}
+function calc(){save();$('#res').textContent=eur(wbase());$('#wk').textContent='Pro Tag: '+eur(base());$('#wb').innerHTML=warn()}
+function warn(st=''){
+  if(S.fixed+S.save>S.income)return `<div class="warnbox" role="alert" style="${st}">${ic('warn',18)} Fixkosten und Sparziel (${eur(S.fixed+S.save)}) liegen über deinem Einkommen. Dein Wochenbudget ist 0 €.</div>`;
+  const l=left();
+  if(wbase()>0&&(l<=0||perDay()<S.min))return `<div class="warnbox" role="alert" style="${st}">${ic('warn',18)} ${l<0?`Du liegst diese Woche ${eur(-l)} über dem Budget.`:l===0?'Dein Wochenbudget ist aufgebraucht.':`Nur noch ${eur(perDay())} pro Tag bis Montag.`}</div>`;
+  return '';
+}
 function setv(k,v){S[k]=parseFloat(v)||0;calc()}
 function spend(n,p,q=1){S.spent+=p*q;S.log.push({n,p,q});render()}
 function use(i){const x=S.items[i],q=Math.max(1,parseInt($('#qty').value)||1);spend(x.n,x.p,q)}
@@ -186,11 +199,11 @@ function closeM(){$('#modal').hidden=true}
 function toast(t){const e=$('#toast');e.textContent=t;e.hidden=false;setTimeout(()=>e.hidden=true,2600)}
 function ask(){
   if(!(S.pending>0))return;
-  modal(`<h3>Gestern blieben ${eur(S.pending)} übrig</h3><p class="muted">Was soll damit passieren?</p>
-    <button class="btn wide" onclick="answer('carry')">${ic('arrow',18)} Auf heute übertragen</button>
+  modal(`<h3>Letzte Woche blieben ${eur(S.pending)} übrig</h3><p class="muted">Aufs Sparkonto legen oder in die neue Woche übertragen?</p>
+    <button class="btn wide" onclick="answer('carry')">${ic('arrow',18)} In die neue Woche übertragen</button>
     <button class="btn soft wide" onclick="answer('save')">${mi(1,26)} Aufs Sparkonto legen</button>`);
 }
-function showMedal(){const m=S.medalQ;if(!m)return false;S.medalQ=null;setTimeout(()=>medal(m),300);return true}
+function showMedal(){const m=MED[S.medalQ];S.medalQ=null;if(!m)return false;save();setTimeout(()=>medal(m),300);return true}
 function onOpen(){if(S.pending>0)ask();else showMedal()}
 function answer(c){
   const a=S.pending;S.pending=0;
@@ -198,36 +211,38 @@ function answer(c){
   closeM();render();
   if(!showMedal()&&c==='save'&&!S.paySeen){S.paySeen=true;setTimeout(pay,300)}
 }
-const today=()=>new Date().toDateString();
-const dayStart=()=>{const n=new Date();return new Date(n.getFullYear(),n.getMonth(),n.getDate()).getTime()};
-S.dayKey=today();S.dayTs=dayStart();S.pending=0;S.medalQ=null;
+/* Wochenbeginn: Montag 00:00 Uhr (lokale Zeit) */
+const weekStart=(t=Date.now())=>{const n=new Date(t);return new Date(n.getFullYear(),n.getMonth(),n.getDate()-(n.getDay()+6)%7).getTime()};
+S.wkTs=weekStart();S.pending=0;S.medalQ=null;
 /* App: Stand lokal speichern, damit nichts beim Schließen verloren geht */
 try{Object.assign(S,JSON.parse(localStorage.getItem('dc')||'{}'))}catch(_){}
+/* Alter Spielstand (Tage): Streak und Rekord gelten ab jetzt als Wochen */
+if(S.dayTs!==undefined){if(S.wkTs===undefined||S.wkTs===null)S.wkTs=weekStart(S.dayTs);S.week=S.week||1;delete S.dayTs;delete S.dayKey;delete S.day}
 const save=()=>{try{localStorage.setItem('dc',JSON.stringify(S))}catch(_){}};
-function rollover(){
+function rollover(silent){
   if(S.pending>0){S.carry+=S.pending;S.pending=0}
-  const gap=Math.max(1,Math.round((dayStart()-S.dayTs)/864e5)),l=left(),ok=l>=S.min;let m=null;
-  if(gap>1)S.streak=0;
-  else if(ok){S.streak++;S.best=Math.max(S.best,S.streak);m=MED.find(x=>x[0]===S.streak)}else S.streak=0;
-  S.medalQ=m||null;S.pending=l>0?l:0;S.carry=l<0?l:0;
-  S.spent=0;S.log=[];S.day++;S.dayKey=today();S.dayTs=dayStart();closeM();render(true);
-  push(`Neuer Tag! Dein Budget heute: ${eur(budget())}`+(S.pending>0?`. Gestern blieben ${eur(S.pending)} übrig.`:l<0?`. Das Minus von gestern (${eur(l)}) wurde abgezogen.`:''));
+  const gap=Math.max(1,Math.round((weekStart()-S.wkTs)/(7*864e5))),l=left();let m=-1;
+  if(gap>2||l<0)S.streak=0;
+  else{S.streak++;S.best=Math.max(S.best,S.streak);m=MED.findIndex(x=>x[0]===S.streak)}
+  S.medalQ=m>=0?m:S.medalQ;S.pending=l>0?l:0;S.carry=l<0?l:0;
+  S.spent=0;S.log=[];S.week+=gap;S.wkTs=weekStart();closeM();render(true);
+  if(!silent)push(`Neue Woche! Dein Wochenbudget: ${eur(budget())}`+(S.pending>0?`. Letzte Woche blieben ${eur(S.pending)} übrig.`:l<0?`. Das Minus der letzten Woche (${eur(l)}) wurde abgezogen.`:''));
 }
 let pushT;
 function push(t){const e=$('#push');$('#pushtxt').textContent=t;e.hidden=false;clearTimeout(pushT);pushT=setTimeout(()=>e.hidden=true,9000)}
 function openPush(){$('#push').hidden=true;onOpen()}
-function cdText(){const n=new Date(),m=new Date(n.getFullYear(),n.getMonth(),n.getDate()+1),s=Math.max(0,Math.floor((m-n)/1000));return [Math.floor(s/3600),Math.floor(s%3600/60),s%60].map(v=>String(v).padStart(2,'0')).join(':')}
-function tick(){if(S.dayKey!==today())rollover();const e=$('#cd');if(e)e.textContent=cdText()}
+function cdText(){const n=Date.now(),s=Math.max(0,Math.floor((weekStart()+7*864e5-n)/1000)),d=Math.floor(s/86400),h=[Math.floor(s%86400/3600),Math.floor(s%3600/60),s%60].map(v=>String(v).padStart(2,'0')).join(':');return `Noch ${d?`<span style="white-space:nowrap">${d===1?'1 Tag':d+' Tage'}</span> `:''}<span style="white-space:nowrap">${h}</span>`}
+function tick(){if(S.wkTs!==weekStart())rollover();const e=$('#cd');if(e)e.innerHTML=cdText()}
 setInterval(tick,1000);
-function medal(m){modal(`<div style="text-align:center">${mi(MED.indexOf(m),110)}</div><h3 style="justify-content:center">Neue Medaille: ${m[1]}</h3><p class="muted">${m[0]} Tage in Folge ist etwas übrig geblieben. Weiter so!</p><button class="btn wide" onclick="closeM()">Super</button>`)}
-function demo(){S.streak=9;S.best=Math.max(S.best,9);render();toast('Streak steht auf 9. Simuliere Mitternacht, um die nächste Medaille zu bekommen.')}
+function medal(m){modal(`<div style="text-align:center">${mi(MED.indexOf(m),110)}</div><h3 style="justify-content:center">Neue Medaille: ${m[1]}</h3><p class="muted">${wk(m[0])} in Folge im Budget geblieben. Weiter so!</p><button class="btn wide" onclick="closeM()">Super</button>`)}
+function demo(){S.streak=7;S.best=Math.max(S.best,7);render();toast('Streak steht auf 7 Wochen. Simuliere den Wochenwechsel, um die nächste Medaille zu bekommen.')}
 function pay(){
   modal(`<h3>${S.saved>0?'Du hast '+eur(S.saved)+' gespart':'Sparfuchs Premium'}</h3>
     <p class="muted">Mehrere Sparziele, Statistik nach Kategorien und unregelmäßiges Einkommen.</p>
     <div class="plans">
       <button class="plan ${S.plan==='y'?'sel':''}" onclick="pick('y')"><b>Jahr</b><span>14,99 €</span><small>etwa 1,25 € pro Monat</small></button>
       <button class="plan ${S.plan==='m'?'sel':''}" onclick="pick('m')"><b>Monat</b><span>2,99 €</span><small>jederzeit kündbar</small></button></div>
-    <button class="btn wide" onclick="buy()">7 Tage gratis testen</button>
+    <button class="btn wide" onclick="buy()">10 Tage gratis testen</button>
     <div class="muted fine">Danach ${S.plan==='y'?'14,99 €/Jahr':'2,99 €/Monat'}, jederzeit kündbar</div>
     <button class="link" onclick="closeM()">Nicht jetzt</button>`);
 }
@@ -268,6 +283,7 @@ document.addEventListener('keydown',e=>{if(!$('#modal').hidden){if(e.key==='Esca
 document.querySelectorAll('.panel').forEach(p=>new ResizeObserver(fit).observe(p));
 document.addEventListener('visibilitychange',()=>{if(!document.hidden){tick();if(S.pending>0&&$('#modal').hidden)ask()}});
 setTab(0);
+if(S.wkTs!==weekStart())rollover(true);if(S.pending>0)ask();else showMedal();
 </script>
 
 </body></html>
