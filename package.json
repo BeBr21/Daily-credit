@@ -4,9 +4,10 @@
   "private": true,
   "description": "Sparfuchs – Tagesbudget-App (Capacitor)",
   "scripts": {
-    "sync": "cap sync",
+    "sync": "node scripts/build-www.js && cap sync",
     "android": "cap open android",
-    "ios": "cap open ios"
+    "ios": "cap open ios",
+    "build": "node scripts/build-www.js"
   },
   "dependencies": {
     "@capacitor/android": "^8.6.2",
