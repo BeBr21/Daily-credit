@@ -1,7 +1,5 @@
 <style>
 :root{color-scheme:light;--bg:#F3F3F5;--ink:#141414;--muted:#66666B;--acc:#1B2E52;--accink:#FFFFFF;--sd:rgba(170,170,175,.55);--sl:#FFFFFF;--beige:#D2B48C;--ok:#1f9d55;--okt:#187A43;--warn:#E8890C;--bad:#C62828;--c3:#5E6F94;--c4:#B9B9BF;--line:rgba(20,20,20,.38)}
-@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){color-scheme:dark;--bg:#141416;--ink:#F3F3F5;--muted:#A6A6AD;--acc:#A9BDE6;--accink:#0E1626;--sd:#060607;--sl:#25252A;--beige:#E3CBA6;--ok:#3CC47A;--okt:#5AD08F;--warn:#F5A23A;--bad:#FF7070;--c3:#8497C2;--c4:#8C8C94;--line:rgba(243,243,245,.42)}}
-:root[data-theme="dark"]{color-scheme:dark;--bg:#141416;--ink:#F3F3F5;--muted:#A6A6AD;--acc:#A9BDE6;--accink:#0E1626;--sd:#060607;--sl:#25252A;--beige:#E3CBA6;--ok:#3CC47A;--okt:#5AD08F;--warn:#F5A23A;--bad:#FF7070;--c3:#8497C2;--c4:#8C8C94;--line:rgba(243,243,245,.42)}
 :root{--top:0px;--raise:7px 7px 18px var(--sd),-7px -7px 18px var(--sl);--raise-s:4px 4px 10px var(--sd),-4px -4px 10px var(--sl);--inset:inset 4px 4px 9px var(--sd),inset -4px -4px 9px var(--sl);--navy:radial-gradient(circle at 80% 12%,rgba(255,255,255,.2),transparent 55%),linear-gradient(150deg,#1B2E52 -30%,#121212 100%)}
 @media (pointer:coarse){:root{--top:calc(env(safe-area-inset-top,0px) + 12px)}}
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
@@ -136,7 +134,7 @@ label input{margin-top:6px;font-weight:400}
 @media (prefers-reduced-motion:reduce){#wrap,#track,.bar i,.xb,.chev,.wk .b,.ring circle{transition:none!important}}
 </style>
 <div class="app">
-  <header><b>Daily Credit</b><span class="day" id="day"></span></header>
+  <header><b>My Weekly Budget</b><span class="day" id="day"></span></header>
   <nav>
     <button onclick="setTab(0)">Übersicht</button>
     <button onclick="setTab(1)">Mein Monat</button>
@@ -149,7 +147,7 @@ label input{margin-top:6px;font-weight:400}
   </div></div>
 </div>
 <div class="modal" id="modal" hidden><div class="sheet" id="sheet" role="dialog" aria-modal="true" aria-label="Hinweis"></div></div>
-<button id="push" hidden onclick="openPush()"><small>DAILY CREDIT · MO 00:01</small><span id="pushtxt"></span></button>
+<button id="push" hidden onclick="openPush()"><small>MY WEEKLY BUDGET · MO 00:01</small><span id="pushtxt"></span></button>
 <div class="toast" id="toast" hidden></div>
 <script>
 const $=s=>document.querySelector(s);
@@ -414,7 +412,7 @@ function demoData(){
   S.saved=120;S.streak=2;S.best=Math.max(S.best,2);S.carry=7.5;S.pending=0;render(true);toast('Demo-Daten geladen');
 }
 function pay(){
-  modal(`<h3>${S.saved>0?'Du hast '+eur(S.saved)+' gespart':'Daily Credit Premium'}</h3>
+  modal(`<h3>${S.saved>0?'Du hast '+eur(S.saved)+' gespart':'My Weekly Budget Premium'}</h3>
     <p class="muted">Mehrere Sparziele, Statistik nach Kategorien und unregelmäßiges Einkommen.</p>
     <div class="plans">
       <button class="plan ${S.plan==='y'?'sel':''}" onclick="pick('y')"><b>Jahr</b><span>14,99 €</span><small>etwa 1,25 € pro Monat</small></button>
